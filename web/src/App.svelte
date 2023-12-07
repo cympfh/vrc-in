@@ -4,79 +4,100 @@
   import { globe, caretRight } from "svelte-awesome/icons";
   import Footer from "./components/Footer.svelte";
 
-  const pathname = location.pathname;
+  let text_input = "";
+  let text_input_old = "";
+  let last_input = (new Date());
+  let translate_en = false;
+  let translate_zh = false;
+  let translate_ko = false;
+  let translate_ja = false;
+  let logging = "";
+  let logging_raw = [];
 
-  let greeting_message = "...";
+  function log(msg) {
+    logging_raw.unshift(msg);
+    while (logging_raw.length > 100) logging_raw.pop();
+    logging = logging_raw.join('\n');
+  }
 
-  function update_greeting() {
-    let params = {};
-    if (pathname != "/") {
-      params.name = pathname;
+  function submit() {
+    let data = {
+      "text": text_input,
+      "translate_en": translate_en,
+      "translate_zh": translate_zh,
+      "translate_ko": translate_ko,
+      "translate_ja": translate_ja,
+    };
+    log(`submit data=${JSON.stringify(data)}`);
+    fetch('/api/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(res => res.json())
+    .then(data => {
+      log(`success: ${JSON.stringify(data)}`);
+    })
+    .catch((error) => {
+      log(`error: ${error}`);
+    });
+  }
+
+  function lifeCycle() {
+    console.log("lifeCycle", text_input, [text_input_old, last_input]);
+    text_input = text_input.trim();
+    if (text_input != text_input_old) {
+      text_input_old = text_input;
+      last_input = (new Date());
+    } else if (text_input !== "") {
+      if ((new Date()) - last_input > 500) {
+        submit();
+        text_input = "";
+      }
     }
-    let query = new URLSearchParams(params).toString();
-    fetch(`/api/greeting?${query}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.msg) {
-          greeting_message = data.msg;
-        } else {
-          console.warn(`Bad Response: ${data}`);
-        }
-      });
+  }
+
+  function clear() {
+    text_input = "";
   }
 
   onMount(() => {
-    update_greeting();
+    setInterval(lifeCycle, 200);
   });
 </script>
 
 <svelte:head>
-  <title>FastSvelte App - {pathname}</title>
+  <title>vrc-in</title>
 </svelte:head>
-
-<section class="hero">
-  <div class="hero-body">
-    <p class="title">
-      <Icon data={globe} />
-      {greeting_message}
-    </p>
-  </div>
-</section>
-
-<div class="section">
-  <div class="container">
-    {#if pathname == "/"}
-      <div class="content">
-        <Icon data={caretRight} />
-        You are on the toplevel <code>/</code>. Try Access to other pages.
-      </div>
-    {:else if pathname.startsWith("/info")}
-      <div class="content">
-        <Icon data={caretRight} />
-        This is a <code>/info</code> page.
-      </div>
-    {:else}
-      <div class="content">
-        <Icon data={caretRight} />
-        Unknown page <code>{pathname}</code>.
-      </div>
-    {/if}
-  </div>
-</div>
 
 <div class="section">
   <div class="container">
     <div class="content">
-      <ul>
-        <li><a href="/">/</a>,</li>
-        <li><a href="/info">/info</a>,</li>
-        <li><a href="/info/xxx">/info/xxx</a>.</li>
-      </ul>
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" placeholder="Text here" id="T" bind:value={text_input}></textarea>
+        </div>
+        <div class="control">
+          <button on:click={clear}>clear</button>
+        </div>
+        <div class="control">
+          <label class="label">翻訳</label>
+          <label class="checkbox"><input type="checkbox" bind:checked={translate_en}>en</label>
+          <label class="checkbox"><input type="checkbox" bind:checked={translate_zh}>zh</label>
+          <label class="checkbox"><input type="checkbox" bind:checked={translate_ko}>ko</label>
+          <label class="checkbox"><input type="checkbox" bind:checked={translate_ja}>ja</label>
+        </div>
+      </div>
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" placeholder="Debug log" bind:value={logging} disabled="disabled"></textarea>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-<Footer>A Template by @cympfh. Please use freely under MIT LICENSE.</Footer>
 
 <style global lang="scss">
   @import "main.scss";
