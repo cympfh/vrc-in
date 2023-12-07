@@ -46,21 +46,17 @@
   }
 
   function lifeCycle() {
-    console.log("lifeCycle", text_input, [text_input_old, last_input]);
     text_input = text_input.trim();
     if (text_input != text_input_old) {
       text_input_old = text_input;
       last_input = (new Date());
+      console.log(text_input, last_input);
     } else if (text_input !== "") {
       if ((new Date()) - last_input > 500) {
         submit();
         text_input = "";
       }
     }
-  }
-
-  function clear() {
-    text_input = "";
   }
 
   onMount(() => {
@@ -75,12 +71,10 @@
 <div class="section">
   <div class="container">
     <div class="content">
+      <h2 class="subtitle">vrc-in v0.1.0</h2>
       <div class="field">
         <div class="control">
           <textarea class="textarea" placeholder="Text here" id="T" bind:value={text_input}></textarea>
-        </div>
-        <div class="control">
-          <button on:click={clear}>clear</button>
         </div>
         <div class="control">
           <label class="label">翻訳</label>
