@@ -91,4 +91,13 @@ Good night!
             model="gpt-4-1106-preview",
             messages=messages,
         )
-        return result.choices[0].message.content
+        content = result.choices[0].message.content
+
+        def strip(s: str) -> str:
+            s = s.strip()
+            lines = s.split("\n")
+            lines = [line for line in lines if line != "---"]
+            return "\n".join(lines)
+
+        content = strip(content)
+        return content

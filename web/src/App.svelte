@@ -71,7 +71,7 @@
 <div class="section">
   <div class="container">
     <div class="content">
-      <h2 class="subtitle">vrc-in v0.1.0</h2>
+      <h2 class="subtitle">vrc-in v0.2.0</h2>
       <div class="field">
         <div class="control">
           <textarea class="textarea" placeholder="Text here" id="T" bind:value={text_input}></textarea>
