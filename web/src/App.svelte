@@ -11,6 +11,7 @@
   let translate_zh = false;
   let translate_ko = false;
   let translate_ja = false;
+  let chat_notify = false;
   let logging = "";
   let logging_raw = [];
 
@@ -27,6 +28,7 @@
       "translate_zh": translate_zh,
       "translate_ko": translate_ko,
       "translate_ja": translate_ja,
+      "chat_notify": chat_notify,
     };
     log(`submit data=${JSON.stringify(data)}`);
     fetch('/api/submit', {
@@ -46,7 +48,8 @@
   }
 
   function lifeCycle() {
-    text_input = text_input.trim();
+    // text_input = text_input.trim();
+    text_input = document.getElementById("T").value.trim();
     if (text_input != text_input_old) {
       text_input_old = text_input;
       last_input = (new Date());
@@ -82,6 +85,10 @@
           <label class="checkbox"><input type="checkbox" bind:checked={translate_zh}>zh</label>
           <label class="checkbox"><input type="checkbox" bind:checked={translate_ko}>ko</label>
           <label class="checkbox"><input type="checkbox" bind:checked={translate_ja}>ja</label>
+        </div>
+        <div class="control">
+          <label class="label">設定</label>
+          <label class="checkbox"><input type="checkbox" bind:checked={chat_notify}>通知音</label>
         </div>
       </div>
       <div class="field">

@@ -18,9 +18,10 @@ class VRC:
         logger.info("VRC.__init__; ip=%s, port=%s", ip, port)
         self.client = udp_client.SimpleUDPClient(ip, port)
 
-    def send(self, message: str):
+    def send(self, message: str, notify: bool):
+        """テキストチャットの送信"""
         logger.info("VRC.send_message; message=%s", repr(message))
-        self.client.send_message("/chatbox/input", [message, True, True])
+        self.client.send_message("/chatbox/input", [message, True, notify])
 
 
 app = FastAPI()
@@ -33,6 +34,7 @@ class SubmitData(BaseModel):
     translate_zh: bool
     translate_ko: bool
     translate_ja: bool
+    chat_notify: bool
 
 
 @app.post("/api/submit")
@@ -60,7 +62,7 @@ async def submit(data: SubmitData):
     if translated:
         text = translated + " / " + data.text
 
-    vrc.send(text)
+    vrc.send(text, data.chat_notify)
 
     return {
         "status": "ok",
